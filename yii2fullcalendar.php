@@ -53,7 +53,7 @@ class yii2fullcalendar extends elWidget
     /**
      * @var string defaultView will define which view renderer will initially be used for displaying calendar events
      */
-    public $defaultView = 'month';
+    public $defaultView = 'dayGridMonth';
 
     /**
     * Holds an array of Event Objects
@@ -75,7 +75,7 @@ class yii2fullcalendar extends elWidget
     public $header = [
         'center'=>'title',
         'left'=>'prev,next today',
-        'right'=>'month,agendaWeek'
+        'right'=>'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     ];
 
     /**
@@ -219,16 +219,18 @@ class yii2fullcalendar extends elWidget
         /** @var \yii\web\AssetBundle $assetClass */
         $assets = CoreAsset::register($view);
 
-        //by default we load the jui theme, but if you like you can set the theme to false and nothing gets loaded....
-        if($this->theme == true)
-        {
-            ThemeAsset::register($view);
-        }
-	
-	if (array_key_exists('defaultView',$this->clientOptions) && ($this->clientOptions['defaultView'] == 'timelineDay' || $this->clientOptions['defaultView'] == 'timelineWeek' || $this->clientOptions['defaultView'] == 'timelineMonth' || $this->clientOptions['defaultView'] == 'agendaDay'))
-        {
-            SchedulerAsset::register($view);
-        }    
+		if(array_key_exists('plugins',$this->clientOptions)) {
+			foreach($this->clientOptions['plugins'] As $plugin) {
+				if(strtolower($plugin) == 'interaction')
+		            InteractionAsset::register($view);
+				if(strtolower($plugin) == 'daygrid')
+		            DaygridAsset::register($view);
+				if(strtolower($plugin) == 'timegrid')
+		            TimegridAsset::register($view);
+				if(strtolower($plugin) == 'list')
+		            ListAsset::register($view);
+			}
+		}
 
         if (isset($this->options['lang']))
         {
@@ -246,7 +248,7 @@ class yii2fullcalendar extends elWidget
             $this->clientOptions['events'] = $this->ajaxEvents;
         }
 	    
-	if(!is_null($this->contentHeight) && !isset($this->clientOptions['contentHeight']))
+		if(!is_null($this->contentHeight) && !isset($this->clientOptions['contentHeight']))
         {
             $this->clientOptions['contentHeight'] = $this->contentHeight;
         }
@@ -270,11 +272,13 @@ class yii2fullcalendar extends elWidget
 
         // clear existing calendar display before rendering new fullcalendar instance
         // this step is important when using the fullcalendar widget with pjax
-        $js[] = "var loading_container = jQuery('#$id .fc-loading');"; // take backup of loading container
-        $js[] = "jQuery('#$id').empty().append(loading_container);"; // remove/empty the calendar container and append loading container bakup
+        $js[] = "var loading_container = jQuery('#$id .fc-loading');\n"; // take backup of loading container
+        $js[] = "jQuery('#$id').empty().append(loading_container);\n"; // remove/empty the calendar container and append loading container bakup
+
+        $js[] = "var calendarEl = document.getElementById('$id');"; // take backup of loading container
 
         $cleanOptions = $this->getClientOptions();
-        $js[] = "jQuery('#$id').fullCalendar($cleanOptions);";
+        $js[] = "new FullCalendar.Calendar(calendarEl,$cleanOptions).render();";
 
         /**
         * Loads events separately from the calendar creation. Uncomment if you need this functionality.
@@ -300,7 +304,7 @@ class yii2fullcalendar extends elWidget
     protected function getClientOptions()
     {
         $id = $this->options['id'];
-      
+/*      
 	if ($this->onLoading)
             $options['loading'] = new JsExpression($this->onLoading);
         else {
@@ -308,7 +312,7 @@ class yii2fullcalendar extends elWidget
                 jQuery('#{$id}').find('.fc-loading').toggle(isLoading);
 	    }");
 	}
-                                               
+*/                                               
         //add new theme information for the calendar                                       
 		$options['themeSystem'] = $this->themeSystem;
                                                

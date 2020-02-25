@@ -11,19 +11,15 @@ use yii\web\AssetBundle;
  * @author akorinek <https://github.com/akorinek>
  */
 
-class SchedulerAsset extends AssetBundle
+class InteractionAsset extends AssetBundle
 {
-    public $sourcePath = '@bower/fullcalendar-scheduler/dist';
+    public $sourcePath = '@bower/fullcalendar/dist/interaction';
     
     /**
      * [$js description]
      * @var array
      */
     public $js = [
-        'scheduler.js',
-    ];
-    
-    public $css = [
-        'scheduler.css'
+        'main.js',
     ];
 }
