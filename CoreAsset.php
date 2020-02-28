@@ -49,7 +49,7 @@ class CoreAsset extends AssetBundle
      * @var array
      */
     public $js = [
-        'locale-all.js',
+        'locales-all.js',
         'main.js',        
     ];
     
